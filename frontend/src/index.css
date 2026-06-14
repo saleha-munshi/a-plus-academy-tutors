@@ -1279,6 +1279,433 @@ label {
 .tm-actions button:hover { background: var(--navy); color: var(--white); }
 .tm-actions button:last-child:hover { background: #c0392b; border-color: #c0392b; color: #fff; }
 
+/* ── Meetings page ───────────────────────────────────────── */
+
+.meetings-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 2rem;
+}
+
+.meetings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.meetings-header h1 { margin: 0; }
+
+/* Calendar legend */
+.cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.cal-legend-item { display: flex; align-items: center; gap: 0.4rem; }
+.cal-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Calendar wrapper — override react-big-calendar defaults */
+.cal-wrapper {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  padding: 0.5rem;
+}
+.cal-wrapper .rbc-calendar { font-family: 'Inter', sans-serif; }
+.cal-wrapper .rbc-toolbar button {
+  color: var(--navy);
+  border-color: var(--border);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+}
+.cal-wrapper .rbc-toolbar button:hover,
+.cal-wrapper .rbc-toolbar button.rbc-active {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+}
+.cal-wrapper .rbc-toolbar-label {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+.cal-wrapper .rbc-header {
+  color: var(--navy);
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 0.5rem 0;
+  border-color: var(--border);
+}
+.cal-wrapper .rbc-today { background: rgba(200, 168, 75, 0.08); }
+.cal-wrapper .rbc-off-range-bg { background: #f4f2ec; }
+.cal-wrapper .rbc-slot-selection { background: rgba(20, 33, 82, 0.12); }
+.cal-wrapper .rbc-event { font-size: 0.82rem; }
+.cal-wrapper .rbc-event:focus { outline: 2px solid var(--gold); }
+
+/* ── Meeting buttons (scoped to meetings UI) ─────────────── */
+
+.meet-btn-primary {
+  background: var(--navy);
+  color: var(--white);
+  border: 1.5px solid var(--navy);
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--radius);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+.meet-btn-primary:hover:not(:disabled) { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+.meet-btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.meet-btn-outline {
+  background: transparent;
+  color: var(--navy);
+  border: 1.5px solid var(--navy);
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--radius);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.meet-btn-outline:hover:not(:disabled) { background: var(--navy); color: var(--white); }
+.meet-btn-outline:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.meet-btn-danger {
+  background: transparent;
+  color: #dc2626;
+  border: 1.5px solid #dc2626;
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--radius);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.meet-btn-danger:hover:not(:disabled) { background: #dc2626; color: #fff; }
+.meet-btn-danger:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Meeting modals ───────────────────────────────────────── */
+
+.meet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 22, 54, 0.55);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.meet-modal {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 460px;
+  width: 100%;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.meet-form-modal { max-width: 520px; }
+
+.meet-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+}
+.meet-close:hover { color: var(--navy); background: transparent; border: none; }
+
+/* Status badge */
+.meet-status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.65rem;
+}
+.meet-status-pending          { background: rgba(200,168,75,0.15); color: #7a5c00; }
+.meet-status-confirmed        { background: rgba(20,33,82,0.1);    color: var(--navy); }
+.meet-status-student_proposed { background: rgba(154,52,18,0.1);   color: #9a3412; }
+.meet-status-declined         { background: rgba(107,114,128,0.12); color: #6b7280; }
+
+.meet-title {
+  margin: 0 0 0.3rem;
+  font-size: 1.25rem;
+  color: var(--navy);
+  padding-right: 2rem;
+}
+
+.meet-time {
+  color: var(--muted);
+  font-size: 0.875rem;
+  margin: 0 0 1rem;
+}
+
+.meet-detail {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
+  font-size: 0.9rem;
+}
+.meet-label {
+  font-weight: 600;
+  color: var(--navy);
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+/* Join button — gold to match scheme */
+.meet-join-btn {
+  display: inline-block;
+  margin-top: 1.1rem;
+  background: var(--gold);
+  color: var(--navy);
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background 0.18s, color 0.18s;
+}
+.meet-join-btn:hover { background: var(--gold-dark); color: var(--navy); }
+
+.meet-no-link {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.meet-modal-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 0;
+}
+
+/* Proposal box */
+.meet-proposal-box {
+  margin-top: 1.1rem;
+  padding: 1rem 1.1rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--off-white);
+}
+.meet-proposal-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--navy);
+  margin: 0 0 0.35rem;
+}
+.meet-proposal-time {
+  font-weight: 600;
+  color: var(--navy);
+  margin: 0 0 0.25rem;
+  font-size: 0.9rem;
+}
+.meet-declined-box { border-color: #fca5a5; background: #fff5f5; color: #991b1b; }
+
+.meet-student-actions { margin-top: 1rem; }
+
+.meet-datetime-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.meet-link-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin-bottom: 0;
+}
+.meet-link-row input { margin-bottom: 0; flex: 1; }
+
+/* "Create Meet" button — gold outline */
+.meet-create-btn {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--navy);
+  border: 1.5px solid var(--gold);
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 0.3rem;
+  transition: background 0.18s, color 0.18s;
+}
+.meet-create-btn:hover { background: var(--gold); color: var(--navy); }
+
+.meet-hint {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+  margin-bottom: 0.75rem;
+  font-style: italic;
+}
+
+/* ── Tablet (641–1024 px) ─────────────────────────────────── */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .meetings-page { padding: 1.25rem 1rem; }
+
+  .meet-modal      { max-width: 86%; }
+  .meet-form-modal { max-width: 92%; }
+
+  /* Tighten modal padding */
+  .meet-modal { padding: 1.75rem; }
+
+  /* Stack actions on narrower tablets */
+  .meet-modal-actions { gap: 0.5rem; }
+}
+
+/* ── Phone (≤ 640 px) ─────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Page */
+  .meetings-page { padding: 0.75rem 0; }
+  .meetings-header { padding: 0 1rem; margin-bottom: 0.6rem; }
+  .meetings-header h1 { font-size: 1.5rem; }
+
+  /* Legend — tighter, 2-column grid */
+  .cal-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem 1rem;
+    padding: 0 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  /* Calendar — no border-radius on sides so it bleeds edge-to-edge */
+  .cal-wrapper {
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    padding: 0.25rem 0;
+  }
+
+  /* Toolbar — wrap so label is centred above nav */
+  .cal-wrapper .rbc-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.5rem;
+  }
+  .cal-wrapper .rbc-toolbar-label {
+    width: 100%;
+    text-align: center;
+    order: -1;
+    font-size: 0.95rem;
+    padding: 0;
+  }
+  .cal-wrapper .rbc-toolbar button {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.55rem;
+  }
+  /* Agenda view cells */
+  .cal-wrapper .rbc-agenda-view table { font-size: 0.82rem; }
+  .cal-wrapper .rbc-agenda-date-cell,
+  .cal-wrapper .rbc-agenda-time-cell { font-size: 0.78rem; }
+
+  /* Bottom-sheet modal */
+  .meet-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .meet-modal {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    padding: 0 1.25rem 2.5rem;
+    max-height: 88vh;
+    /* pull-handle bar */
+  }
+  .meet-modal::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 1rem auto 1.25rem;
+  }
+  /* Close button sits higher to clear the handle */
+  .meet-close { top: 0.5rem; right: 1rem; }
+
+  /* Full-width stacked action buttons */
+  .meet-modal-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .meet-modal-actions .meet-btn-primary,
+  .meet-modal-actions .meet-btn-outline,
+  .meet-modal-actions .meet-btn-danger {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    padding: 0.7rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  /* Student accept/propose buttons — also full width */
+  .meet-student-actions .meet-modal-actions { margin-top: 0.75rem; }
+
+  /* Join Meet full-width */
+  .meet-join-btn {
+    display: block;
+    text-align: center;
+    margin-top: 0.9rem;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Form elements */
+  .meet-datetime-row { grid-template-columns: 1fr; gap: 0; }
+  .meet-link-row { flex-direction: column; }
+  .meet-create-btn { width: 100%; justify-content: center; margin-top: 0; }
+
+  /* Proposal box */
+  .meet-proposal-box { padding: 0.85rem; }
+  .meet-proposal-time { font-size: 0.85rem; }
+}
+
 /* ── PDF controls ────────────────────────────────────────── */
 
 .pdf-controls {

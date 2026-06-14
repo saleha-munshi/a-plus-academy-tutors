@@ -32,6 +32,9 @@ export default function Navbar() {
             <Link to="/testimonials" className="nav-link">Testimonials</Link>
           </>
         )}
+        {user && (
+          <Link to="/meetings" className="nav-link">Meetings</Link>
+        )}
         {role === 'owner' && (
           <Link to="/dashboard/owner" className="nav-btn nav-btn-secondary">Owner Portal</Link>
         )}
@@ -63,6 +66,9 @@ export default function Navbar() {
               <Link to="/apply" className="mobile-link" onClick={close}>Apply</Link>
               <Link to="/testimonials" className="mobile-link" onClick={close}>Testimonials</Link>
             </>
+          )}
+          {user && (
+            <Link to="/meetings" className="mobile-link" onClick={close}>Meetings</Link>
           )}
           {role === 'owner' && (
             <Link to="/dashboard/owner" className="mobile-link" onClick={close}>Owner Portal</Link>

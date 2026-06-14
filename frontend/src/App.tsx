@@ -11,6 +11,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import TutorDashboard from './pages/TutorDashboard';
 import OwnerDashboard from './pages/OwnerDashboard';
 import ChangePasswordPage from './pages/ChangePasswordPage';
+import MeetingsPage from './pages/MeetingsPage';
 
 export default function App() {
   return (
@@ -23,6 +24,15 @@ export default function App() {
           <Route path="/apply" element={<ApplyPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/change-password" element={<ChangePasswordPage />} />
+
+          <Route
+            path="/meetings"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'tutor', 'owner']}>
+                <MeetingsPage />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="/dashboard" element={<DashboardRouter />} />
 

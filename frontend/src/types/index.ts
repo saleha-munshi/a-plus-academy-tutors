@@ -75,6 +75,26 @@ export interface TestResult {
   completedAt: string;
 }
 
+export type MeetingStatus = 'pending' | 'confirmed' | 'student_proposed' | 'declined';
+
+export interface Meeting {
+  id: string;
+  title: string;
+  tutorId: string;
+  tutorName: string;
+  studentId: string;
+  studentName: string;
+  start: string;
+  end: string;
+  meetLink: string;
+  notes?: string;
+  status: MeetingStatus;
+  proposedStart?: string;
+  proposedEnd?: string;
+  proposalNotes?: string;
+  createdAt: string;
+}
+
 export interface Testimonial {
   id: string;
   quote: string;

@@ -10,6 +10,7 @@ const assignmentRoutes = require('./routes/assignments');
 const testResultRoutes = require('./routes/testResults');
 const applicationRoutes = require('./routes/applications');
 const testimonialRoutes = require('./routes/testimonials');
+const meetingRoutes = require('./routes/meetings');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/api/assignments', assignmentRoutes);
 app.use('/api/test-results', testResultRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/meetings', meetingRoutes);
 
 // Generic error handler (e.g. multer file errors)
 app.use((err, req, res, next) => {
