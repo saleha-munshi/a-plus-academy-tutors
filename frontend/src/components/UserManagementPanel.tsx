@@ -246,7 +246,9 @@ export default function UserManagementPanel() {
             <li key={tutor.uid} className="user-row">
               <span className="user-row-name">{tutor.name} <span className="user-row-email">({tutor.email})</span></span>
               <div className="user-row-controls">
-                <button onClick={() => setPendingDeleteUid(tutor.uid)}>Delete</button>
+                {tutor.role !== 'owner' && (
+                  <button onClick={() => setPendingDeleteUid(tutor.uid)}>Delete</button>
+                )}
               </div>
             </li>
           ))}
@@ -270,7 +272,9 @@ export default function UserManagementPanel() {
                     <option key={t.uid} value={t.uid}>{t.name}</option>
                   ))}
                 </select>
-                <button onClick={() => setPendingDeleteUid(student.uid)}>Delete</button>
+                {student.role !== 'owner' && (
+                  <button onClick={() => setPendingDeleteUid(student.uid)}>Delete</button>
+                )}
               </div>
             </li>
           ))}

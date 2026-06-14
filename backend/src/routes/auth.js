@@ -72,6 +72,11 @@ router.delete('/deleteUser/:uid', verifyToken, requireRole('owner'), async (req,
   const { uid } = req.params;
 
   try {
+    const targetDoc = await db.collection('users').doc(uid).get();
+    if (targetDoc.exists && targetDoc.data().role === 'owner') {
+      return res.status(403).json({ error: 'Owner accounts cannot be deleted.' });
+    }
+
     await auth.deleteUser(uid);
     await db.collection('users').doc(uid).delete();
 

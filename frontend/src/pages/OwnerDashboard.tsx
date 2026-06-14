@@ -141,12 +141,10 @@ export default function OwnerDashboard() {
                             <h5>{top}</h5>
                             <ul>
                               {items.map((resource) => (
-                                <li key={resource.id}>
-                                  {resource.title}
-                                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <button onClick={() => { setEditingResource(resource); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                                      Edit
-                                    </button>
+                                <li key={resource.id} className="item-row">
+                                  <span className="item-row-name">{resource.title}</span>
+                                  <div className="item-row-controls">
+                                    <button onClick={() => { setEditingResource(resource); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Edit</button>
                                     <button onClick={() => setPendingDelete({ type: 'resource', id: resource.id })}>Delete</button>
                                   </div>
                                 </li>
@@ -189,9 +187,14 @@ export default function OwnerDashboard() {
                             <h5>{top}</h5>
                             <ul>
                               {items.map((test) => (
-                                <li key={test.id}>
-                                  {test.title} ({test.questions.length} questions)
-                                  <button onClick={() => setPendingDelete({ type: 'test', id: test.id })}>Delete</button>
+                                <li key={test.id} className="item-row">
+                                  <span className="item-row-name">
+                                    {test.title}
+                                    <span className="item-row-meta">({test.questions.length} questions)</span>
+                                  </span>
+                                  <div className="item-row-controls">
+                                    <button onClick={() => setPendingDelete({ type: 'test', id: test.id })}>Delete</button>
+                                  </div>
                                 </li>
                               ))}
                             </ul>

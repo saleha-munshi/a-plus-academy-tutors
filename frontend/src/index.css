@@ -803,6 +803,50 @@ label {
   font-family: 'Inter', sans-serif;
 }
 
+/* ── Item row (resources / tests in owner portal) ───────── */
+
+.resource-topic-group ul { list-style: none; padding: 0; margin: 0; }
+
+.item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.item-row:last-child { border-bottom: none; }
+
+.item-row-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.925rem;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.item-row-meta {
+  margin-left: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.item-row-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+.item-row-controls button {
+  height: 32px;
+  padding: 0 0.9rem;
+  font-size: 0.825rem;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
 /* ── Assignment Library ──────────────────────────────────── */
 
 .assignment-library label {
