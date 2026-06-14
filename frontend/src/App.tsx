@@ -12,6 +12,7 @@ import TutorDashboard from './pages/TutorDashboard';
 import OwnerDashboard from './pages/OwnerDashboard';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import MeetingsPage from './pages/MeetingsPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 export default function App() {
   return (
@@ -62,6 +63,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
