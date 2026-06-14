@@ -243,9 +243,11 @@ export default function UserManagementPanel() {
         <h2>Tutors</h2>
         <ul>
           {tutors.map((tutor) => (
-            <li key={tutor.uid}>
-              {tutor.name} ({tutor.email})
-              <button onClick={() => setPendingDeleteUid(tutor.uid)}>Delete</button>
+            <li key={tutor.uid} className="user-row">
+              <span className="user-row-name">{tutor.name} <span className="user-row-email">({tutor.email})</span></span>
+              <div className="user-row-controls">
+                <button onClick={() => setPendingDeleteUid(tutor.uid)}>Delete</button>
+              </div>
             </li>
           ))}
         </ul>
@@ -255,23 +257,21 @@ export default function UserManagementPanel() {
         <h2>Students</h2>
         <ul>
           {students.map((student) => (
-            <li key={student.uid}>
-              {student.name} ({student.email})
-              <label>
-                Tutor:
+            <li key={student.uid} className="user-row">
+              <span className="user-row-name">{student.name} <span className="user-row-email">({student.email})</span></span>
+              <div className="user-row-controls">
+                <span className="user-row-label">Tutor</span>
                 <select
                   value={student.assignedTutorId ?? ''}
                   onChange={(e) => handleReassign(student.uid, e.target.value)}
                 >
                   <option value="">Unassigned</option>
                   {tutors.map((t) => (
-                    <option key={t.uid} value={t.uid}>
-                      {t.name}
-                    </option>
+                    <option key={t.uid} value={t.uid}>{t.name}</option>
                   ))}
                 </select>
-              </label>
-              <button onClick={() => setPendingDeleteUid(student.uid)}>Delete</button>
+                <button onClick={() => setPendingDeleteUid(student.uid)}>Delete</button>
+              </div>
             </li>
           ))}
         </ul>
