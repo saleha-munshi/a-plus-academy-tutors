@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Testimonial } from '../types';
 import { api } from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function TestimonialsPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -18,7 +19,7 @@ export default function TestimonialsPage() {
       <p className="page-subtitle">Real results from real students across GCSE and A-Level.</p>
 
       {loading ? (
-        <p style={{ textAlign: 'center' }}>Loading testimonials</p>
+        <LoadingSpinner message="Loading testimonials…" />
       ) : testimonials.length === 0 ? (
         <p style={{ textAlign: 'center' }}>No testimonials yet — check back soon.</p>
       ) : (

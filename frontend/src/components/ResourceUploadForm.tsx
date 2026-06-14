@@ -19,14 +19,23 @@ const capitalize = (s: string) =>
 interface ResourceUploadFormProps {
   resources: Resource[];
   onUploaded: () => void;
+  editingResource?: Resource | null;
+  onCancelEdit?: () => void;
 }
 
-export default function ResourceUploadForm({ resources, onUploaded }: ResourceUploadFormProps) {
-  const [title, setTitle] = useState('');
-  const [resourceType, setResourceType] = useState<ResourceType>('subject-notes');
-  const [gradeLevel, setGradeLevel] = useState<GradeLevel>('gcse');
-  const [subject, setSubject] = useState(GCSE_SUBJECTS[0]);
-  const [topic, setTopic] = useState('');
+export default function ResourceUploadForm({
+  resources,
+  onUploaded,
+  editingResource,
+  onCancelEdit,
+}: ResourceUploadFormProps) {
+  const isEditing = !!editingResource;
+
+  const [title, setTitle] = useState(editingResource?.title ?? '');
+  const [resourceType, setResourceType] = useState<ResourceType>(editingResource?.resourceType ?? 'subject-notes');
+  const [gradeLevel, setGradeLevel] = useState<GradeLevel>(editingResource?.gradeLevel ?? 'gcse');
+  const [subject, setSubject] = useState(editingResource?.subject ?? GCSE_SUBJECTS[0]);
+  const [topic, setTopic] = useState(editingResource?.topic ?? '');
   const [addingNewTopic, setAddingNewTopic] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -67,7 +76,7 @@ export default function ResourceUploadForm({ resources, onUploaded }: ResourceUp
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!file) { setError('Please select a PDF file'); return; }
+    if (!isEditing && !file) { setError('Please select a PDF file'); return; }
     if (!topic.trim()) { setError('Please select or enter a topic'); return; }
 
     setSubmitting(true);
@@ -80,17 +89,22 @@ export default function ResourceUploadForm({ resources, onUploaded }: ResourceUp
       formData.append('gradeLevel', gradeLevel);
       formData.append('subject', subject);
       formData.append('topic', topic.trim());
-      formData.append('file', file);
+      if (file) formData.append('file', file);
 
-      await api.post('/resources', formData);
+      if (isEditing) {
+        await api.patch(`/resources/${editingResource!.id}`, formData);
+        onCancelEdit?.();
+      } else {
+        await api.post('/resources', formData);
+        setTitle('');
+        setTopic('');
+        setAddingNewTopic(false);
+        setFile(null);
+      }
 
-      setTitle('');
-      setTopic('');
-      setAddingNewTopic(false);
-      setFile(null);
       onUploaded();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      setError(err instanceof Error ? err.message : isEditing ? 'Edit failed' : 'Upload failed');
     } finally {
       setSubmitting(false);
     }
@@ -115,10 +129,7 @@ export default function ResourceUploadForm({ resources, onUploaded }: ResourceUp
 
       <label>
         Grade Level
-        <select
-          value={gradeLevel}
-          onChange={(e) => handleGradeLevelChange(e.target.value as GradeLevel)}
-        >
+        <select value={gradeLevel} onChange={(e) => handleGradeLevelChange(e.target.value as GradeLevel)}>
           <option value="gcse">GCSE</option>
           <option value="a-level">A Level</option>
         </select>
@@ -128,9 +139,7 @@ export default function ResourceUploadForm({ resources, onUploaded }: ResourceUp
         Subject
         <select value={subject} onChange={(e) => handleSubjectChange(e.target.value)}>
           {subjects.map((s) => (
-            <option key={s} value={s}>
-              {capitalize(s)}
-            </option>
+            <option key={s} value={s}>{capitalize(s)}</option>
           ))}
         </select>
       </label>
@@ -146,10 +155,7 @@ export default function ResourceUploadForm({ resources, onUploaded }: ResourceUp
               style={{ flex: 1 }}
             />
             {existingTopics.length > 0 && (
-              <button
-                type="button"
-                onClick={() => { setAddingNewTopic(false); setTopic(existingTopics[0]); }}
-              >
+              <button type="button" onClick={() => { setAddingNewTopic(false); setTopic(existingTopics[0]); }}>
                 Choose existing
               </button>
             )}
@@ -165,19 +171,32 @@ export default function ResourceUploadForm({ resources, onUploaded }: ResourceUp
       </label>
 
       <label>
-        PDF File
+        {isEditing ? 'Replace PDF (optional)' : 'PDF File'}
         <input
           type="file"
           accept="application/pdf"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          required
+          required={!isEditing}
         />
+        {isEditing && (
+          <span style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.25rem', display: 'block' }}>
+            Leave blank to keep the existing file.
+          </span>
+        )}
       </label>
 
       {error && <p className="error">{error}</p>}
-      <button type="submit" disabled={submitting}>
-        {submitting ? 'Uploading...' : 'Upload'}
-      </button>
+
+      <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <button type="submit" disabled={submitting}>
+          {submitting ? (isEditing ? 'Saving…' : 'Uploading…') : (isEditing ? 'Save changes' : 'Upload')}
+        </button>
+        {isEditing && (
+          <button type="button" onClick={onCancelEdit} disabled={submitting}>
+            Cancel
+          </button>
+        )}
+      </div>
     </form>
   );
 }

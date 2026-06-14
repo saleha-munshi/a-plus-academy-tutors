@@ -76,6 +76,42 @@ router.post('/', verifyToken, requireRole('owner'), upload.single('file'), async
 });
 
 /**
+ * PATCH /api/resources/:id
+ * Owner only - edit resource metadata and optionally replace the PDF
+ */
+router.patch('/:id', verifyToken, requireRole('owner'), upload.single('file'), async (req, res) => {
+  const { id } = req.params;
+  const { title, resourceType, gradeLevel, subject, topic } = req.body;
+
+  try {
+    const docRef = db.collection('resources').doc(id);
+    const doc = await docRef.get();
+    if (!doc.exists) return res.status(404).json({ error: 'Resource not found' });
+
+    const updates = {};
+    if (title) updates.title = title;
+    if (resourceType && ['subject-notes', 'homework'].includes(resourceType)) updates.resourceType = resourceType;
+    if (gradeLevel && ['gcse', 'a-level'].includes(gradeLevel)) updates.gradeLevel = gradeLevel;
+    if (subject) updates.subject = subject;
+    if (topic) updates.topic = topic;
+
+    if (req.file) {
+      const { storagePath } = doc.data();
+      if (storagePath) await bucket.file(storagePath).delete().catch(() => {});
+      const newPath = `resources/${id}.pdf`;
+      await bucket.file(newPath).save(req.file.buffer, { metadata: { contentType: 'application/pdf' } });
+      updates.storagePath = newPath;
+    }
+
+    await docRef.update(updates);
+    return res.status(200).json({ id, ...doc.data(), ...updates });
+  } catch (err) {
+    console.error('editResource error:', err.message);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * DELETE /api/resources/:id
  * Owner only - delete resource metadata + file
  */

@@ -36,6 +36,7 @@ export default function OwnerDashboard() {
   const [tests, setTests] = useState<Test[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingResource, setEditingResource] = useState<Resource | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -115,8 +116,14 @@ export default function OwnerDashboard() {
         <>
           {tab === 'resources' && (
             <div>
-              <h2>Upload Resource</h2>
-              <ResourceUploadForm resources={resources} onUploaded={loadData} />
+              <h2>{editingResource ? `Editing: ${editingResource.title}` : 'Upload Resource'}</h2>
+              <ResourceUploadForm
+                key={editingResource?.id ?? 'new'}
+                resources={resources}
+                onUploaded={loadData}
+                editingResource={editingResource}
+                onCancelEdit={() => setEditingResource(null)}
+              />
 
               <h2>Existing Resources</h2>
               {resources.length === 0 ? (
@@ -142,7 +149,12 @@ export default function OwnerDashboard() {
                               {items.map((resource) => (
                                 <li key={resource.id}>
                                   {resource.title}
-                                  <button onClick={() => deleteResource(resource.id)}>Delete</button>
+                                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button onClick={() => { setEditingResource(resource); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                                      Edit
+                                    </button>
+                                    <button onClick={() => deleteResource(resource.id)}>Delete</button>
+                                  </div>
                                 </li>
                               ))}
                             </ul>
