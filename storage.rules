@@ -1,0 +1,11 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // All PDF reads/writes go through the Express backend (Admin SDK + signed URLs),
+    // so direct client access to Storage is locked down entirely.
+    match /resources/{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,82 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function role() {
+      return request.auth.token.role;
+    }
+
+    function isOwner() {
+      return isSignedIn() && role() == 'owner';
+    }
+
+    function isTutor() {
+      return isSignedIn() && role() == 'tutor';
+    }
+
+    function isStudent() {
+      return isSignedIn() && role() == 'student';
+    }
+
+    // --- users ---
+    match /users/{userId} {
+      allow read: if isOwner() || (isSignedIn() && request.auth.uid == userId);
+      // Tutors can read their own students' profiles
+      allow read: if isTutor() && resource.data.assignedTutorId == request.auth.uid;
+      // All writes go through the Express backend using the Admin SDK
+      allow write: if false;
+    }
+
+    // --- resources (workbooks/textbooks metadata) ---
+    match /resources/{resourceId} {
+      allow read: if isSignedIn();
+      allow write: if false; // backend only (owner)
+    }
+
+    // --- tests ---
+    // Full test docs (with correct answers) should only be readable by tutor/owner.
+    // Students get stripped data via the backend API, not direct Firestore reads.
+    match /tests/{testId} {
+      allow read: if isTutor() || isOwner();
+      allow write: if false; // backend only (owner)
+    }
+
+    // --- assignments ---
+    match /assignments/{assignmentId} {
+      allow read: if isOwner()
+        || (isStudent() && resource.data.studentId == request.auth.uid)
+        || (isTutor() && exists(/databases/$(database)/documents/users/$(resource.data.studentId))
+            && get(/databases/$(database)/documents/users/$(resource.data.studentId)).data.assignedTutorId == request.auth.uid);
+      allow write: if false; // backend only (tutor/owner)
+    }
+
+    // --- progress (reading progress) ---
+    match /progress/{progressId} {
+      allow read: if isOwner()
+        || (isStudent() && resource.data.studentId == request.auth.uid)
+        || (isTutor() && exists(/databases/$(database)/documents/users/$(resource.data.studentId))
+            && get(/databases/$(database)/documents/users/$(resource.data.studentId)).data.assignedTutorId == request.auth.uid);
+      allow write: if false; // backend only (student marks as read)
+    }
+
+    // --- testResults ---
+    match /testResults/{resultId} {
+      allow read: if isOwner()
+        || (isStudent() && resource.data.studentId == request.auth.uid)
+        || (isTutor() && exists(/databases/$(database)/documents/users/$(resource.data.studentId))
+            && get(/databases/$(database)/documents/users/$(resource.data.studentId)).data.assignedTutorId == request.auth.uid);
+      allow write: if false; // backend only (server-side grading)
+    }
+
+    // --- applications ---
+    match /applications/{applicationId} {
+      allow read: if isOwner();
+      allow write: if false; // backend only (public submit endpoint, owner review)
+    }
+  }
+}

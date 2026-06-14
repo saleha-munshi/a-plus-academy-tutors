@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "a-plus-academy-tutors"
+  },
+  "targets": {
+    "a-plus-academy-tutors": {
+      "storage": {
+        "default": [
+          "a-plus-academy-tutors.firebasestorage.app"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
