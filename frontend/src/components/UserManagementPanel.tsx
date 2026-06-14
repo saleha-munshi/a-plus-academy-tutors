@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState, useCallback } from 'react';
 import { Application, Role, UserProfile } from '../types';
 import { api } from '../services/api';
 import LoadingSpinner from './LoadingSpinner';
+import ConfirmModal from './ConfirmModal';
 
 const ALL_SUBJECTS = [
   'biology', 'business', 'chemistry', 'citizenship', 'computer science',
@@ -19,6 +20,7 @@ export default function UserManagementPanel() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pendingDeleteUid, setPendingDeleteUid] = useState<string | null>(null);
 
   // New account form state
   const [name, setName] = useState('');
@@ -81,15 +83,16 @@ export default function UserManagementPanel() {
     }
   };
 
-  const handleDeleteUser = async (uid: string) => {
-    if (!confirm('Delete this user? This cannot be undone.')) return;
+  const handleDeleteUser = async () => {
+    if (!pendingDeleteUid) return;
     setError(null);
-
     try {
-      await api.delete(`/auth/deleteUser/${uid}`);
+      await api.delete(`/auth/deleteUser/${pendingDeleteUid}`);
       await loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete user');
+    } finally {
+      setPendingDeleteUid(null);
     }
   };
 
@@ -242,7 +245,7 @@ export default function UserManagementPanel() {
           {tutors.map((tutor) => (
             <li key={tutor.uid}>
               {tutor.name} ({tutor.email})
-              <button onClick={() => handleDeleteUser(tutor.uid)}>Delete</button>
+              <button onClick={() => setPendingDeleteUid(tutor.uid)}>Delete</button>
             </li>
           ))}
         </ul>
@@ -268,11 +271,21 @@ export default function UserManagementPanel() {
                   ))}
                 </select>
               </label>
-              <button onClick={() => handleDeleteUser(student.uid)}>Delete</button>
+              <button onClick={() => setPendingDeleteUid(student.uid)}>Delete</button>
             </li>
           ))}
         </ul>
       </section>
+
+      <ConfirmModal
+        open={!!pendingDeleteUid}
+        title="Delete user?"
+        message="This will permanently delete the account. This cannot be undone."
+        confirmLabel="Delete"
+        danger
+        onConfirm={handleDeleteUser}
+        onCancel={() => setPendingDeleteUid(null)}
+      />
     </div>
   );
 }

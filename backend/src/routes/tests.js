@@ -175,13 +175,13 @@ router.delete('/:id', verifyToken, requireRole('owner'), async (req, res) => {
 
     await docRef.delete();
 
-    const assignmentsSnap = await db
-      .collection('assignments')
-      .where('itemId', '==', req.params.id)
-      .where('itemType', '==', 'test')
-      .get();
+    const [assignmentsSnap, resultsSnap] = await Promise.all([
+      db.collection('assignments').where('itemId', '==', req.params.id).where('itemType', '==', 'test').get(),
+      db.collection('testResults').where('testId', '==', req.params.id).get(),
+    ]);
     const batch = db.batch();
     assignmentsSnap.forEach((d) => batch.delete(d.ref));
+    resultsSnap.forEach((d) => batch.delete(d.ref));
     await batch.commit();
 
     return res.status(200).json({ message: 'Test deleted' });

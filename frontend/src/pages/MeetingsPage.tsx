@@ -7,6 +7,7 @@ import { Meeting, MeetingStatus, UserProfile } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ConfirmModal from '../components/ConfirmModal';
 
 const locales = { 'en-US': enUS };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
@@ -72,6 +73,7 @@ export default function MeetingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [modal, setModal] = useState<ModalState>({ type: 'none' });
   const [saving, setSaving] = useState(false);
+  const [pendingConfirm, setPendingConfirm] = useState<{ type: 'delete-meeting' | 'decline-proposal'; id: string } | null>(null);
 
   const [form, setForm] = useState({ title: '', studentId: '', start: '', end: '', meetLink: '', notes: '' });
   const [proposeForm, setProposeForm] = useState({ proposedStart: '', proposedEnd: '', proposalNotes: '' });
@@ -158,11 +160,7 @@ export default function MeetingsPage() {
     } finally { setSaving(false); }
   };
 
-  const deleteMeeting = async (id: string) => {
-    if (!confirm('Delete this meeting?')) return;
-    try { await api.delete(`/meetings/${id}`); await load(); closeModal(); }
-    catch (err) { setError(err instanceof Error ? err.message : 'Failed to delete'); }
-  };
+  const deleteMeeting = (id: string) => setPendingConfirm({ type: 'delete-meeting', id });
 
   const handleAccept = async (id: string) => {
     try { await api.post(`/meetings/${id}/accept`, {}); await load(); closeModal(); }
@@ -193,10 +191,16 @@ export default function MeetingsPage() {
     catch (err) { setError(err instanceof Error ? err.message : 'Failed to accept proposal'); }
   };
 
-  const handleDeclineProposal = async (id: string) => {
-    if (!confirm('Decline this proposal?')) return;
-    try { await api.post(`/meetings/${id}/decline-proposal`, {}); await load(); closeModal(); }
-    catch (err) { setError(err instanceof Error ? err.message : 'Failed to decline proposal'); }
+  const handleDeclineProposal = (id: string) => setPendingConfirm({ type: 'decline-proposal', id });
+
+  const handleConfirmAction = async () => {
+    if (!pendingConfirm) return;
+    const { type, id } = pendingConfirm;
+    setPendingConfirm(null);
+    try {
+      if (type === 'delete-meeting') { await api.delete(`/meetings/${id}`); await load(); closeModal(); }
+      if (type === 'decline-proposal') { await api.post(`/meetings/${id}/decline-proposal`, {}); await load(); closeModal(); }
+    } catch (err) { setError(err instanceof Error ? err.message : 'Action failed'); }
   };
 
   if (loading) return <LoadingSpinner message="Loading meetings…" />;
@@ -428,6 +432,20 @@ export default function MeetingsPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!pendingConfirm}
+        title={pendingConfirm?.type === 'delete-meeting' ? 'Delete meeting?' : 'Decline proposal?'}
+        message={
+          pendingConfirm?.type === 'delete-meeting'
+            ? 'This meeting will be permanently removed.'
+            : 'The student will be notified that their proposed time was declined.'
+        }
+        confirmLabel={pendingConfirm?.type === 'delete-meeting' ? 'Delete' : 'Decline'}
+        danger
+        onConfirm={handleConfirmAction}
+        onCancel={() => setPendingConfirm(null)}
+      />
     </div>
   );
 }

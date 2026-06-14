@@ -1832,3 +1832,104 @@ label {
   margin-top: 1rem;
   justify-content: center;
 }
+
+/* ── Confirm Modal ───────────────────────────────────────── */
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 33, 82, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.confirm-modal {
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  animation: confirmPop 0.18s ease;
+}
+
+@keyframes confirmPop {
+  from { opacity: 0; transform: scale(0.92) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+
+.confirm-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 auto 1.25rem;
+}
+
+.confirm-icon--warn  { background: #fff8e6; color: var(--gold-dark); }
+.confirm-icon--danger { background: #fef2f2; color: #dc2626; }
+
+.confirm-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: var(--navy);
+  margin: 0 0 0.5rem;
+}
+
+.confirm-message {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0 0 1.75rem;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.confirm-btn-cancel {
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.confirm-btn-cancel:hover { border-color: var(--navy); background: var(--off-white); }
+
+.confirm-btn-primary {
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--navy);
+  color: var(--white);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.confirm-btn-primary:hover { background: var(--navy-dark); }
+
+.confirm-btn-danger {
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius);
+  border: none;
+  background: #dc2626;
+  color: var(--white);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.confirm-btn-danger:hover { background: #b91c1c; }

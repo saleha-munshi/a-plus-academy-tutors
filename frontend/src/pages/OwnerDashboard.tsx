@@ -6,6 +6,7 @@ import TestBuilder from '../components/TestBuilder';
 import UserManagementPanel from '../components/UserManagementPanel';
 import TestimonialsManager from '../components/TestimonialsManager';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ConfirmModal from '../components/ConfirmModal';
 
 type Tab = 'resources' | 'tests' | 'users' | 'testimonials';
 
@@ -37,6 +38,7 @@ export default function OwnerDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ type: 'resource' | 'test'; id: string } | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -59,23 +61,15 @@ export default function OwnerDashboard() {
     loadData();
   }, [loadData]);
 
-  const deleteResource = async (id: string) => {
-    if (!confirm('Delete this resource?')) return;
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
     try {
-      await api.delete(`/resources/${id}`);
+      await api.delete(`/${pendingDelete.type === 'resource' ? 'resources' : 'tests'}/${pendingDelete.id}`);
       await loadData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete resource');
-    }
-  };
-
-  const deleteTest = async (id: string) => {
-    if (!confirm('Delete this test?')) return;
-    try {
-      await api.delete(`/tests/${id}`);
-      await loadData();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete test');
+      setError(err instanceof Error ? err.message : `Failed to delete ${pendingDelete.type}`);
+    } finally {
+      setPendingDelete(null);
     }
   };
 
@@ -153,7 +147,7 @@ export default function OwnerDashboard() {
                                     <button onClick={() => { setEditingResource(resource); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                                       Edit
                                     </button>
-                                    <button onClick={() => deleteResource(resource.id)}>Delete</button>
+                                    <button onClick={() => setPendingDelete({ type: 'resource', id: resource.id })}>Delete</button>
                                   </div>
                                 </li>
                               ))}
@@ -197,7 +191,7 @@ export default function OwnerDashboard() {
                               {items.map((test) => (
                                 <li key={test.id}>
                                   {test.title} ({test.questions.length} questions)
-                                  <button onClick={() => deleteTest(test.id)}>Delete</button>
+                                  <button onClick={() => setPendingDelete({ type: 'test', id: test.id })}>Delete</button>
                                 </li>
                               ))}
                             </ul>
@@ -216,6 +210,20 @@ export default function OwnerDashboard() {
           {tab === 'testimonials' && <TestimonialsManager />}
         </>
       )}
+
+      <ConfirmModal
+        open={!!pendingDelete}
+        title={pendingDelete?.type === 'resource' ? 'Delete resource?' : 'Delete test?'}
+        message={
+          pendingDelete?.type === 'resource'
+            ? 'This will permanently remove the resource and its PDF.'
+            : 'This will permanently delete the test and all student results.'
+        }
+        confirmLabel="Delete"
+        danger
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

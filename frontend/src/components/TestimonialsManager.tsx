@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Testimonial } from '../types';
 import { api } from '../services/api';
+import ConfirmModal from './ConfirmModal';
 
 type EditState = { mode: 'idle' } | { mode: 'add' } | { mode: 'edit'; item: Testimonial };
 
@@ -11,6 +12,7 @@ export default function TestimonialsManager() {
   const [author, setAuthor] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -67,17 +69,29 @@ export default function TestimonialsManager() {
     }
   };
 
-  const remove = async (id: string) => {
-    if (!confirm('Delete this testimonial?')) return;
+  const remove = async () => {
+    if (!pendingDeleteId) return;
     try {
-      await api.delete(`/testimonials/${id}`);
+      await api.delete(`/testimonials/${pendingDeleteId}`);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete');
+    } finally {
+      setPendingDeleteId(null);
     }
   };
 
   return (
+    <>
+    <ConfirmModal
+      open={!!pendingDeleteId}
+      title="Delete testimonial?"
+      message="This testimonial will be permanently removed from the site."
+      confirmLabel="Delete"
+      danger
+      onConfirm={remove}
+      onCancel={() => setPendingDeleteId(null)}
+    />
     <div className="testimonials-manager">
       <div className="tm-header">
         <h2>Testimonials</h2>
@@ -128,12 +142,13 @@ export default function TestimonialsManager() {
               <span className="tm-author">— {t.author}</span>
               <div className="tm-actions">
                 <button onClick={() => openEdit(t)}>Edit</button>
-                <button onClick={() => remove(t.id)}>Delete</button>
+                <button onClick={() => setPendingDeleteId(t.id)}>Delete</button>
               </div>
             </div>
           ))}
         </div>
       )}
     </div>
+    </>
   );
 }
