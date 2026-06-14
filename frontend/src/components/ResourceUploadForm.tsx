@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import { GradeLevel, Resource, ResourceType } from '../types';
 import { api } from '../services/api';
 
@@ -50,6 +50,12 @@ export default function ResourceUploadForm({
         .map((r) => r.topic)
     ),
   ].sort();
+
+  useEffect(() => {
+    if (!addingNewTopic && existingTopics.length > 0 && !topic) {
+      setTopic(existingTopics[0]);
+    }
+  }, [existingTopics, addingNewTopic]);
 
   const handleGradeLevelChange = (newLevel: GradeLevel) => {
     const newSubjects = newLevel === 'gcse' ? GCSE_SUBJECTS : A_LEVEL_SUBJECTS;
